@@ -49,7 +49,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         // attempt() returns the token on success, or false on failure
-        if (!$token = auth('api')->attempt($credentials)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -60,4 +60,14 @@ class AuthController extends Controller
     {
         return response()->json(auth('api')->user());
     }
+
+    protected function respondWithToken($token)
+{
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'bearer',
+        'expires_in' => JWTAuth::factory()->getTTL() * 60,
+        'user' => auth('api')->user() // Optional: include user info
+    ]);
+}
 }
